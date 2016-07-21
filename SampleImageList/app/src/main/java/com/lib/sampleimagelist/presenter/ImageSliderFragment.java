@@ -9,6 +9,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import com.lib.loaderlib.LoaderManager;
 import com.lib.loaderlib.factory.model.ImageResource;
@@ -23,6 +24,8 @@ public class ImageSliderFragment extends Fragment {
     public static final String KEY_IMAGE_URL = "key_image_url";
 
     private ImageView mImageView;
+    private String mImageUrl;
+    private ProgressBar mProgressBar;
 
     public ImageSliderFragment() {
 
@@ -35,12 +38,13 @@ public class ImageSliderFragment extends Fragment {
         ViewGroup rootView = (ViewGroup) inflater.inflate(
                 R.layout.fragment_image_slide, container, false);
         mImageView = (ImageView) rootView.findViewById(R.id.img_full);
-        String imageUrl = getArguments().getString(KEY_IMAGE_URL);
-        displayImage(imageUrl);
+        mProgressBar = (ProgressBar) rootView.findViewById(R.id.loading_item);
+        mImageUrl = getArguments().getString(KEY_IMAGE_URL);
+        displayImage();
         return rootView;
     }
 
-    protected void displayImage(String imageUrl) {
+    public void displayImage() {
         Display display = getActivity().getWindowManager().getDefaultDisplay();
         Point size = new Point();
         display.getSize(size);
@@ -48,11 +52,11 @@ public class ImageSliderFragment extends Fragment {
         int width = size.x - (margin * 2);
         int height = size.y - (margin * 2);
 
-        if (cancelPotentialDownload(imageUrl, mImageView)) {
-            ImageLoaderCallback imageLoaderCallback = new ImageLoaderCallback(mImageView, imageUrl);
+        if (cancelPotentialDownload(mImageUrl, mImageView)) {
+            ImageLoaderCallback imageLoaderCallback = new ImageLoaderCallback(mImageView, mProgressBar, mImageUrl);
             DownloadedDrawable downloadedDrawableImage = new DownloadedDrawable(imageLoaderCallback);
             mImageView.setImageDrawable(downloadedDrawableImage);
-            LoaderManager.getInstance().load(imageUrl,
+            LoaderManager.getInstance().load(mImageUrl,
                     new ImageResource(width, height), imageLoaderCallback, false);
         }
 

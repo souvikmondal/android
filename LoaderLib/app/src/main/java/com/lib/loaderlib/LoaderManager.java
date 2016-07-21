@@ -80,6 +80,10 @@ public final class LoaderManager {
         }
     }
 
+    public void releaseCache() {
+        mResourceCache.evictAll();
+    }
+
     private boolean addCallbackToMap(String url, LoaderCallback callback) {
         boolean callbackExist = true;
         List<LoaderCallback> callbackList = mCallbackMap.get(url);

@@ -39,6 +39,24 @@ public class ImageSliderActivity extends FragmentActivity {
         mViewPager.setCurrentItem(position);
     }
 
+    private class SliderChangeListener implements ViewPager.OnPageChangeListener {
+
+        @Override
+        public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+        }
+
+        @Override
+        public void onPageSelected(int position) {
+            ((ImageSliderFragment)mImageSliderPagerAdapter.getItem(position)).displayImage();
+        }
+
+        @Override
+        public void onPageScrollStateChanged(int state) {
+
+        }
+    }
+
     private class ImageSliderPagerAdapter extends FragmentStatePagerAdapter {
 
         public ImageSliderPagerAdapter(FragmentManager fragmentManager) {

@@ -2,7 +2,9 @@ package com.lib.sampleimagelist.utils;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import com.lib.loaderlib.LoaderCallback;
 import com.lib.loaderlib.factory.model.RemoteResource;
@@ -13,10 +15,17 @@ import java.lang.ref.WeakReference;
 public class ImageLoaderCallback implements LoaderCallback {
 
     private WeakReference<ImageView> imageViewWeakReference;
+    private WeakReference<ProgressBar> loadingItemReference;
     public String url;
 
     public ImageLoaderCallback(ImageView imageView, String url) {
         imageViewWeakReference = new WeakReference<ImageView>(imageView);
+        this.url = url;
+    }
+
+    public ImageLoaderCallback(ImageView imageView, ProgressBar loadingItem, String url) {
+        imageViewWeakReference = new WeakReference<ImageView>(imageView);
+        loadingItemReference = new WeakReference<ProgressBar>(loadingItem);
         this.url = url;
     }
 
@@ -28,6 +37,9 @@ public class ImageLoaderCallback implements LoaderCallback {
             if ((this == imageLoaderCallback)) {
                 Bitmap bitmap = (Bitmap) remoteResource.getResource();
                 imageView.setImageBitmap(bitmap);
+                if (loadingItemReference != null) {
+                    loadingItemReference.get().setVisibility(View.GONE);
+                }
             }
         }
     }

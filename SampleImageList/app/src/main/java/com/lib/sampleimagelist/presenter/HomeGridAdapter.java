@@ -95,6 +95,7 @@ public class HomeGridAdapter extends BaseAdapter {
 
         @Override
         public void onClick(View v) {
+            LoaderManager.getInstance().releaseCache();
             Intent intent = new Intent(v.getContext(), ImageSliderActivity.class);
             intent.putExtra(ImageSliderActivity.KEY_IMAGE_POSITION, gridItemPosition);
             v.getContext().startActivity(intent);
