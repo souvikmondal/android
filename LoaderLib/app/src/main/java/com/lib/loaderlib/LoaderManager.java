@@ -107,7 +107,7 @@ public final class LoaderManager {
 
     private int computeCacheSize() {
         final int maxMemory = (int) (Runtime.getRuntime().maxMemory() / 1024);
-        final int cacheSize = maxMemory / 8;
+        final int cacheSize = maxMemory / 16;
         return cacheSize;
     }
 

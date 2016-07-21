@@ -11,6 +11,7 @@ import com.lib.loaderlib.LoaderCallback;
 import com.lib.loaderlib.LoaderManager;
 import com.lib.loaderlib.factory.model.RemoteResource;
 import com.lib.loaderlib.factory.model.TextResource;
+import com.lib.sampleimagelist.ImageListApp;
 import com.lib.sampleimagelist.R;
 import com.lib.sampleimagelist.model.PinModel;
 import com.lib.sampleimagelist.utils.JSONParser;
@@ -23,14 +24,12 @@ public class HomeActivity extends AppCompatActivity {
     private HomeGridAdapter mAdapter;
     private SwipeRefreshLayout mSwipeRefreshLayout;
 
-    public static Bitmap NO_IMAGE;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-
-        NO_IMAGE = BitmapFactory.decodeResource(getResources(), R.drawable.no_image);
 
         hookInControls();
 
@@ -68,6 +67,7 @@ public class HomeActivity extends AppCompatActivity {
             String jsonString = (String) remoteResource.getResource();
             PinModel[] pinModels = JSONParser.parse(jsonString, PinModel[].class);
             mAdapter = new HomeGridAdapter(pinModels);
+            ImageListApp.getAppInstance().setPinModels(pinModels);
             mGridView.setAdapter(mAdapter);
             mSwipeRefreshLayout.setRefreshing(false);
         }

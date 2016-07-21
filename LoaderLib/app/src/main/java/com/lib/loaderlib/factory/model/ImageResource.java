@@ -16,6 +16,11 @@ public class ImageResource implements RemoteResource<Bitmap> {
     private Bitmap mResource;
     private int mReqWidth, mReqHeight;
 
+    public ImageResource(int width, int height) {
+        mReqWidth = width;
+        mReqHeight = height;
+    }
+
     @Override
     public void prepare(InputStream inputStream) {
         if (mReqWidth > 0 && mReqHeight > 0) {
@@ -29,14 +34,6 @@ public class ImageResource implements RemoteResource<Bitmap> {
         } catch (IOException ex) {
             //ignore
         }
-    }
-
-    public void setReqHeight(int mReqHeight) {
-        this.mReqHeight = mReqHeight;
-    }
-
-    public void setReqWidth(int mReqWidth) {
-        this.mReqWidth = mReqWidth;
     }
 
     @Override

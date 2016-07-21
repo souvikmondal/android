@@ -1,8 +1,6 @@
 package com.lib.sampleimagelist.presenter;
 
-import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,14 +8,12 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.lib.loaderlib.LoaderCallback;
 import com.lib.loaderlib.LoaderManager;
 import com.lib.loaderlib.factory.model.ImageResource;
-import com.lib.loaderlib.factory.model.RemoteResource;
 import com.lib.sampleimagelist.R;
 import com.lib.sampleimagelist.model.PinModel;
-
-import java.lang.ref.WeakReference;
+import com.lib.sampleimagelist.utils.ImageLoaderCallback;
+import com.lib.sampleimagelist.widget.DownloadedDrawable;
 
 public class HomeGridAdapter extends BaseAdapter {
 
@@ -25,7 +21,6 @@ public class HomeGridAdapter extends BaseAdapter {
 
     public HomeGridAdapter(PinModel[] pins) {
         mAllPins = pins;
-
     }
 
     @Override
@@ -55,9 +50,14 @@ public class HomeGridAdapter extends BaseAdapter {
             holder.imageViewProfile = (ImageView) view.findViewById(R.id.icon_profile);
             holder.profileNameView = (TextView) view.findViewById(R.id.profile_name);
             holder.likesCountView = (TextView) view.findViewById(R.id.likes_count);
+            OnGridItemClickListener gridItemClickListener = new OnGridItemClickListener();
+            gridItemClickListener.gridItemPosition = position;
+            holder.gridItemClickListener = gridItemClickListener;
+            view.setOnClickListener(gridItemClickListener);
             view.setTag(holder);
         } else {
             holder = (ViewHolder)view.getTag();
+            holder.gridItemClickListener.gridItemPosition = position;
         }
 
         PinModel pinModel = mAllPins[position];
@@ -71,7 +71,8 @@ public class HomeGridAdapter extends BaseAdapter {
             ImageLoaderCallback imageLoaderCallback = new ImageLoaderCallback(holder.imageView, imageUrl);
             DownloadedDrawable downloadedDrawableImage = new DownloadedDrawable(imageLoaderCallback);
             holder.imageView.setImageDrawable(downloadedDrawableImage);
-            LoaderManager.getInstance().load(imageUrl, new ImageResource(), imageLoaderCallback, false);
+            LoaderManager.getInstance().load(imageUrl,
+                    new ImageResource(width, height), imageLoaderCallback, false);
         }
 
         String profileImage = pinModel.getUser().getProfile_image().get("small");
@@ -81,10 +82,24 @@ public class HomeGridAdapter extends BaseAdapter {
             ImageLoaderCallback imageLoaderCallbackProfile = new ImageLoaderCallback(holder.imageViewProfile, profileImage);
             DownloadedDrawable downloadedDrawableImageProfile = new DownloadedDrawable(imageLoaderCallbackProfile);
             holder.imageViewProfile.setImageDrawable(downloadedDrawableImageProfile);
-            LoaderManager.getInstance().load(profileImage, new ImageResource(), imageLoaderCallbackProfile, false);
+            LoaderManager.getInstance().load(profileImage,
+                    new ImageResource(width, height), imageLoaderCallbackProfile, false);
         }
 
         return view;
+    }
+
+    class OnGridItemClickListener implements View.OnClickListener {
+
+        private int gridItemPosition;
+
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(v.getContext(), ImageSliderActivity.class);
+            intent.putExtra(ImageSliderActivity.KEY_IMAGE_POSITION, gridItemPosition);
+            v.getContext().startActivity(intent);
+        }
+
     }
 
     public static class ViewHolder {
@@ -92,11 +107,11 @@ public class HomeGridAdapter extends BaseAdapter {
         public TextView likesCountView;
         public ImageView imageView;
         public ImageView imageViewProfile;
-
+        public OnGridItemClickListener gridItemClickListener;
     }
 
     private static boolean cancelPotentialDownload(String url, ImageView imageView) {
-        ImageLoaderCallback imageLoaderCallback = getImageLoaderCallback(imageView);
+        ImageLoaderCallback imageLoaderCallback = ImageLoaderCallback.getImageLoaderCallback(imageView);
 
         if (imageLoaderCallback != null ) {
             if (!url.equals(imageLoaderCallback.url)) {
@@ -107,64 +122,5 @@ public class HomeGridAdapter extends BaseAdapter {
             }
         }
         return true;
-    }
-
-    private static ImageLoaderCallback getImageLoaderCallback(ImageView imageView) {
-        if (imageView != null) {
-            Drawable drawable = imageView.getDrawable();
-            if (drawable instanceof DownloadedDrawable) {
-                DownloadedDrawable downloadedDrawable = (DownloadedDrawable)drawable;
-                return downloadedDrawable.getImageLoaderCallback();
-            }
-        }
-        return null;
-    }
-
-    static class ImageLoaderCallback implements LoaderCallback {
-
-        private WeakReference<ImageView> imageViewWeakReference;
-        public String url;
-
-        public ImageLoaderCallback(ImageView imageView, String url) {
-            imageViewWeakReference = new WeakReference<ImageView>(imageView);
-            this.url = url;
-        }
-
-        @Override
-        public void onLoaded(String url, RemoteResource remoteResource) {
-            if (imageViewWeakReference != null) {
-                ImageView imageView = imageViewWeakReference.get();
-                ImageLoaderCallback imageLoaderCallback = getImageLoaderCallback(imageView);
-                if ((this == imageLoaderCallback)) {
-                    Bitmap bitmap = (Bitmap) remoteResource.getResource();
-                    imageView.setImageBitmap(bitmap);
-                }
-            }
-        }
-
-        @Override
-        public void onCancelled(String url) {
-
-        }
-
-        @Override
-        public void onFailed(String url, Exception ex) {
-
-        }
-    }
-
-    static class DownloadedDrawable extends BitmapDrawable {
-        private WeakReference<ImageLoaderCallback> imageLoaderCallbackWeakReference;
-
-
-        public DownloadedDrawable(ImageLoaderCallback callback) {
-            super(HomeActivity.NO_IMAGE);
-            imageLoaderCallbackWeakReference =
-                    new WeakReference<ImageLoaderCallback>(callback);
-        }
-
-        public ImageLoaderCallback getImageLoaderCallback() {
-            return imageLoaderCallbackWeakReference.get();
-        }
     }
 }
